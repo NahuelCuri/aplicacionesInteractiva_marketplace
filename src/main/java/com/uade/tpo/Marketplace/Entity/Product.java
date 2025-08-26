@@ -1,0 +1,39 @@
+package com.uade.tpo.Marketplace.Entity;
+
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.util.List;
+
+@Data
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    private String description;
+
+    private Double price;
+
+    private Integer stock;
+
+    private Double discountPercentage; // 0–100
+
+    // Seller
+    @ManyToOne
+    @JoinColumn(name = "seller_id", nullable = false)
+    private User seller;
+
+    // Category
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    // Images
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images;
+}
