@@ -1,6 +1,8 @@
 package com.uade.tpo.Marketplace.Controller;
 
-import com.uade.tpo.Marketplace.Entity.Category;
+import com.uade.tpo.Marketplace.DTOs.CategoryDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.CategoryListDTO;
+import com.uade.tpo.Marketplace.DTOs.CategoryRequestDTO;
 import com.uade.tpo.Marketplace.Service.CategoryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +19,23 @@ public class CategoryController {
     private  CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.createCategory(category));
+    public ResponseEntity<CategoryDetailDTO> createCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
+        return ResponseEntity.ok(categoryService.createCategory(categoryRequestDTO));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<CategoryDetailDTO> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryListDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, category));
+    public ResponseEntity<CategoryDetailDTO> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDTO categoryRequestDTO) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequestDTO));
     }
 
     @DeleteMapping("/{id}")

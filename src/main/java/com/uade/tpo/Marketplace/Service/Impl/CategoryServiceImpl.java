@@ -1,6 +1,10 @@
 package com.uade.tpo.Marketplace.Service.Impl;
 
+import com.uade.tpo.Marketplace.DTOs.CategoryDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.CategoryListDTO;
+import com.uade.tpo.Marketplace.DTOs.CategoryRequestDTO;
 import com.uade.tpo.Marketplace.Entity.Category;
+import com.uade.tpo.Marketplace.DTOs.Mapper.CategoryMapper;
 import com.uade.tpo.Marketplace.Repository.CategoryRepository;
 import com.uade.tpo.Marketplace.Service.CategoryService;
 
@@ -8,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -17,35 +21,43 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 
     @Override
-    public Category createCategory(Category category) {
-        if (categoryRepository.existsByName(category.getName())) {
-            throw new IllegalArgumentException("Category with this name already exists");
-        }
-        return categoryRepository.save(category);
+    public CategoryDetailDTO createCategory(CategoryRequestDTO categoryRequestDTO) {
+        Category category = new Category();
+        category.setName(categoryRequestDTO.getName());
+        category.setDescription(categoryRequestDTO.getDescription());
+        Category savedCategory = categoryRepository.save(category);
+        return CategoryMapper.toCategoryDetailDTO(savedCategory);
     }
 
     @Override
-    public Category getCategoryById(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Category not found with id " + id));
+    public CategoryDetailDTO getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        return CategoryMapper.toCategoryDetailDTO(category);
     }
 
     @Override
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryListDTO> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(CategoryMapper::toCategoryListDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Category updateCategory(Long id, Category category) {
-        Category existing = getCategoryById(id);
-        existing.setName(category.getName());
-        existing.setDescription(category.getDescription());
-        return categoryRepository.save(existing);
+    public CategoryDetailDTO updateCategory(Long id, CategoryRequestDTO categoryRequestDTO) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        category.setName(categoryRequestDTO.getName());
+        category.setDescription(categoryRequestDTO.getDescription());
+        Category updatedCategory = categoryRepository.save(category);
+        return CategoryMapper.toCategoryDetailDTO(updatedCategory);
     }
 
     @Override
     public void deleteCategory(Long id) {
-        Category existing = getCategoryById(id);
-        categoryRepository.delete(existing);
+        if (!categoryRepository.existsById(id)) {
+            throw new RuntimeException("Category not found with id: " + id);
+        }
+        categoryRepository.deleteById(id);
     }
 }

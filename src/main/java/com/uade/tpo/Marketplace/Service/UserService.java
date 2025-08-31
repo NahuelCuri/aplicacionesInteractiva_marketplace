@@ -1,14 +1,16 @@
 package com.uade.tpo.Marketplace.Service;
 
-import com.uade.tpo.Marketplace.Entity.User;
-
+import com.uade.tpo.Marketplace.DTOs.UserDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.UserRegistrationDTO;
+import com.uade.tpo.Marketplace.DTOs.UserUpdateDTO;
 import java.util.List;
 
 public interface UserService {
-    User createUser(User user);
-    User getUserById(Long id);
-    User getUserByUsername(String username);
-    List<User> getAllUsers();
-    User updateUser(Long id, User user);
+    UserDetailDTO createUser(UserRegistrationDTO userRegistrationDTO);
+    UserDetailDTO getUserById(Long id);
+    UserDetailDTO getUserByUsername(String username);
+    List<UserDetailDTO> getAllUsers();
+    UserDetailDTO updateUser(Long id, UserUpdateDTO userUpdateDTO);
     void deleteUser(Long id);
+    List<UserDetailDTO> searchUsersByUsername(String username);
 }

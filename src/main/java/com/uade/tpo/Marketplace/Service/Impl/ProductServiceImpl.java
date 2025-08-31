@@ -9,10 +9,12 @@ import com.uade.tpo.Marketplace.DTOs.Mapper.ProductMapper;
 import com.uade.tpo.Marketplace.Entity.Category;
 import com.uade.tpo.Marketplace.Entity.Product;
 import com.uade.tpo.Marketplace.Entity.ProductImage;
+import com.uade.tpo.Marketplace.Entity.Role;
 import com.uade.tpo.Marketplace.Entity.User;
 import com.uade.tpo.Marketplace.Repository.CategoryRepository;
 import com.uade.tpo.Marketplace.Repository.ProductImageRepository;
 import com.uade.tpo.Marketplace.Repository.ProductRepository;
+import com.uade.tpo.Marketplace.Repository.RoleRepository;
 import com.uade.tpo.Marketplace.Repository.UserRepository;
 import com.uade.tpo.Marketplace.Service.ProductService;
 
@@ -36,6 +38,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductImageRepository productImageRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public List<ProductListDTO> getAllProducts() {
@@ -77,20 +82,28 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(dto.getStock());
         product.setDiscountPercentage(dto.getDiscountPercentage());
 
-        // Category
+
+        User seller = userRepository.findById(dto.getSellerId())
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        boolean isAlreadySeller = seller.getRoles().stream()
+                                        .anyMatch(role -> "SELLER".equals(role.getName()));
+
+        if (!isAlreadySeller) {
+            Role sellerRole = roleRepository.findByName("SELLER")
+                    .orElseThrow(() -> new RuntimeException("Error: Role 'SELLER' not found in database."));
+            
+            seller.getRoles().add(sellerRole);
+            userRepository.save(seller); 
+        }
+        
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         product.setCategory(category);
-
-        // Seller
-        User seller = userRepository.findById(dto.getSellerId())
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
         product.setSeller(seller);
 
-        // Primero guardamos el producto para obtener ID
         Product savedProduct = productRepository.save(product);
 
-        // Imágenes
         if (dto.getImages() != null) {
             for (MultipartFile file : dto.getImages()) {
                 try {

@@ -8,13 +8,12 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "orders") // porque "order" es reservada
+@Table(name = "orders") 
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Buyer
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
     private User buyer;

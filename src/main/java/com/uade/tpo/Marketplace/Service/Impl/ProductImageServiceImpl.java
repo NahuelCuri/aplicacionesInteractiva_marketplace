@@ -1,28 +1,31 @@
 package com.uade.tpo.Marketplace.Service.Impl;
 
+import com.uade.tpo.Marketplace.DTOs.Mapper.ProductImageMapper;
+import com.uade.tpo.Marketplace.DTOs.ProductImageInfoDTO;
 import com.uade.tpo.Marketplace.Entity.Product;
 import com.uade.tpo.Marketplace.Entity.ProductImage;
 import com.uade.tpo.Marketplace.Repository.ProductImageRepository;
 import com.uade.tpo.Marketplace.Repository.ProductRepository;
 import com.uade.tpo.Marketplace.Service.ProductImageService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductImageServiceImpl implements ProductImageService {
 
-    private final ProductImageRepository productImageRepository;
-    private final ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
-    public ProductImageServiceImpl(ProductImageRepository productImageRepository, ProductRepository productRepository) {
-        this.productImageRepository = productImageRepository;
-        this.productRepository = productRepository;
-    }
+    @Autowired
+    private ProductImageRepository productImageRepository;
 
     @Override
-    public ProductImage addImageToProduct(Long productId, byte[] imageData) {
+    public ProductImageInfoDTO addImageToProduct(Long productId, byte[] imageData) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id " + productId));
 
@@ -30,7 +33,8 @@ public class ProductImageServiceImpl implements ProductImageService {
         productImage.setImageData(imageData);
         productImage.setProduct(product);
 
-        return productImageRepository.save(productImage);
+        ProductImage savedImage = productImageRepository.save(productImage);
+        return ProductImageMapper.toProductImageInfoDTO(savedImage); 
     }
 
     @Override
@@ -40,13 +44,17 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    public List<ProductImage> getImagesByProduct(Long productId) {
-        return productImageRepository.findByProductId(productId);
+    public List<ProductImageInfoDTO> getImagesByProduct(Long productId) {
+        return productImageRepository.findByProductId(productId).stream()
+                .map(ProductImageMapper::toProductImageInfoDTO) 
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deleteImage(Long id) {
-        ProductImage existing = getImageById(id);
-        productImageRepository.delete(existing);
+        if (!productImageRepository.existsById(id)) {
+            throw new NoSuchElementException("Image not found with id " + id);
+        }
+        productImageRepository.deleteById(id);
     }
 }

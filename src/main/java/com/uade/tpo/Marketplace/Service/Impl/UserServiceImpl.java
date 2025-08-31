@@ -1,14 +1,21 @@
 package com.uade.tpo.Marketplace.Service.Impl;
 
+import com.uade.tpo.Marketplace.DTOs.Mapper.UserMapper;
+import com.uade.tpo.Marketplace.DTOs.UserDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.UserRegistrationDTO;
+import com.uade.tpo.Marketplace.DTOs.UserUpdateDTO;
+import com.uade.tpo.Marketplace.Entity.Role;
 import com.uade.tpo.Marketplace.Entity.User;
+import com.uade.tpo.Marketplace.Repository.RoleRepository;
 import com.uade.tpo.Marketplace.Repository.UserRepository;
 import com.uade.tpo.Marketplace.Service.UserService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -16,48 +23,78 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository; 
+
     @Override
-    public User createUser(User user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+    public UserDetailDTO createUser(UserRegistrationDTO userRegistrationDTO) {
+        if (userRepository.existsByUsername(userRegistrationDTO.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(userRegistrationDTO.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
-        return userRepository.save(user);
+
+        User user = new User();
+        user.setUsername(userRegistrationDTO.getUsername());
+        user.setEmail(userRegistrationDTO.getEmail());
+        
+        user.setPassword(userRegistrationDTO.getPassword());
+
+        Role buyerRole = roleRepository.findByName("BUYER")
+                    .orElseThrow(() -> new RuntimeException("Error: Default role 'ROLE_BUYER' not found in database."));
+        user.setRoles(Collections.singletonList(buyerRole));
+        User savedUser = userRepository.save(user);
+        return UserMapper.toUserDetailDTO(savedUser);
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
+    public UserDetailDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id " + id));
+        return UserMapper.toUserDetailDTO(user);
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
+    public UserDetailDTO getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException("User not found with username " + username));
+        return UserMapper.toUserDetailDTO(user);
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDetailDTO> searchUsersByUsername(String username) {
+        List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
+        
+        return users.stream()
+                .map(UserMapper::toUserDetailDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User updateUser(Long id, User user) {
-        User existing = getUserById(id);
-        existing.setUsername(user.getUsername());
-        existing.setEmail(user.getEmail());
-        if (user.getPassword() != null && !user.getPassword().isBlank()) {
-            existing.setPassword(user.getPassword());
-        }
-        return userRepository.save(existing);
+    public List<UserDetailDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::toUserDetailDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDetailDTO updateUser(Long id, UserUpdateDTO userUpdateDTO) {
+        User existing = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found with id " + id));
+        
+        existing.setEmail(userUpdateDTO.getEmail());
+        existing.setUsername(userUpdateDTO.getUsername());
+
+        User updatedUser = userRepository.save(existing);
+        return UserMapper.toUserDetailDTO(updatedUser);
     }
 
     @Override
     public void deleteUser(Long id) {
-        User existing = getUserById(id);
-        userRepository.delete(existing);
+        if (!userRepository.existsById(id)) {
+            throw new NoSuchElementException("User not found with id " + id);
+        }
+        userRepository.deleteById(id);
     }
 }

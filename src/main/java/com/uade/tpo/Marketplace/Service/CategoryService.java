@@ -1,12 +1,18 @@
 package com.uade.tpo.Marketplace.Service;
 
-import com.uade.tpo.Marketplace.Entity.Category;
+import com.uade.tpo.Marketplace.DTOs.CategoryDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.CategoryListDTO;
+import com.uade.tpo.Marketplace.DTOs.CategoryRequestDTO;
 import java.util.List;
 
 public interface CategoryService {
-    Category createCategory(Category category);
-    Category getCategoryById(Long id);
-    List<Category> getAllCategories();
-    Category updateCategory(Long id, Category category);
+    CategoryDetailDTO createCategory(CategoryRequestDTO categoryRequestDTO);
+
+    CategoryDetailDTO getCategoryById(Long id);
+
+    List<CategoryListDTO> getAllCategories();
+
+    CategoryDetailDTO updateCategory(Long id, CategoryRequestDTO categoryRequestDTO);
+
     void deleteCategory(Long id);
 }

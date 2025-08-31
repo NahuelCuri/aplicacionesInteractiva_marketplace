@@ -1,8 +1,9 @@
 package com.uade.tpo.Marketplace.Controller;
 
-import com.uade.tpo.Marketplace.Entity.User;
+import com.uade.tpo.Marketplace.DTOs.UserDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.UserRegistrationDTO;
+import com.uade.tpo.Marketplace.DTOs.UserUpdateDTO;
 import com.uade.tpo.Marketplace.Service.UserService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,31 +15,36 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private  UserService userService;
+    private UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<UserDetailDTO> createUser(@RequestBody UserRegistrationDTO userRegistrationDTO) {
+        return ResponseEntity.ok(userService.createUser(userRegistrationDTO));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDetailDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<UserDetailDTO> getUserByUsername(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDetailDTO>> searchUsers(@RequestParam String username) {
+        return ResponseEntity.ok(userService.searchUsersByUsername(username));
+    }
+
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDetailDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        return ResponseEntity.ok(userService.updateUser(id, user));
+    public ResponseEntity<UserDetailDTO> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        return ResponseEntity.ok(userService.updateUser(id, userUpdateDTO));
     }
 
     @DeleteMapping("/{id}")
