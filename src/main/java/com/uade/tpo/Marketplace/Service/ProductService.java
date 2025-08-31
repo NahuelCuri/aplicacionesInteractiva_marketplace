@@ -1,5 +1,6 @@
 package com.uade.tpo.Marketplace.Service;
 
+import com.uade.tpo.Marketplace.DTOs.ProductCreateDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductDetailDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductListDTO;
 
@@ -11,5 +12,6 @@ public interface ProductService {
     ProductDetailDTO getProductById(Long id);
     List<ProductListDTO> searchProductsByName(String name);
     List<ProductListDTO> getProductsByCategory(Long categoryId);
+    ProductDetailDTO createProduct(ProductCreateDTO dto);
 }
 

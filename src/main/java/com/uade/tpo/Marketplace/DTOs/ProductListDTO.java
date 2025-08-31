@@ -12,5 +12,5 @@ public class ProductListDTO {
     private String name;
     private Double finalPrice;
     private String categoryName;
-    private String mainImageUrl;
+    private String mainImageBase64;
 }

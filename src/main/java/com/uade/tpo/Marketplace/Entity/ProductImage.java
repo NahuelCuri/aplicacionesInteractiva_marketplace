@@ -11,7 +11,9 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String url;
+    @Lob
+    @Column(nullable = false, columnDefinition = "LONGBLOB")
+    private byte[] imageData;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

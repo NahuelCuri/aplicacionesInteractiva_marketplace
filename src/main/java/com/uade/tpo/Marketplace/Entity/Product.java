@@ -21,19 +21,16 @@ public class Product {
 
     private Integer stock;
 
-    private Double discountPercentage; // 0–100
+    private Double discountPercentage; 
 
-    // Seller
     @ManyToOne
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    // Category
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // Images
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images;
 }

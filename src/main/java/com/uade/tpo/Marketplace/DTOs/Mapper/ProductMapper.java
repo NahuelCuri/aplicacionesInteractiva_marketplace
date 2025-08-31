@@ -1,16 +1,62 @@
 package com.uade.tpo.Marketplace.DTOs.Mapper;
 
+import com.uade.tpo.Marketplace.DTOs.ProductCreateDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductDetailDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductListDTO;
+import com.uade.tpo.Marketplace.Entity.Category;
 import com.uade.tpo.Marketplace.Entity.Product;
+import com.uade.tpo.Marketplace.Entity.ProductImage;
+import com.uade.tpo.Marketplace.Entity.User;
+
 import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.Base64;
 
 public class ProductMapper {
 
+    public static Product toEntity(ProductCreateDTO dto) {
+        Product product = new Product();
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setStock(dto.getStock());
+        product.setDiscountPercentage(dto.getDiscountPercentage());
+
+        if (dto.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(dto.getCategoryId());
+            product.setCategory(category);
+        }
+
+        if (dto.getSellerId() != null) {
+            User seller = new User();
+            seller.setId(dto.getSellerId());
+            product.setSeller(seller);
+        }
+
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            product.setImages(
+                dto.getImages().stream().map(file -> {
+                    try {
+                        ProductImage img = new ProductImage();
+                        img.setImageData(file.getBytes());
+                        img.setProduct(product);
+                        return img;
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error al procesar imagen", e);
+                    }
+                }).collect(Collectors.toList())
+            );
+        }
+
+        return product;
+    }
+
+
     public static ProductListDTO toSimpleDTO(Product product) {
-        String mainImage = null;
+        String mainImageBase64 = null;
         if (product.getImages() != null && !product.getImages().isEmpty()) {
-            mainImage = product.getImages().get(0).getUrl();
+            mainImageBase64 = Base64.getEncoder().encodeToString(product.getImages().get(0).getImageData());
         }
 
         double finalPrice = calcFinalPrice(product);
@@ -20,7 +66,7 @@ public class ProductMapper {
                 product.getName(),
                 finalPrice,
                 product.getCategory() != null ? product.getCategory().getName() : null,
-                mainImage
+                mainImageBase64
         );
     }
 
@@ -36,7 +82,9 @@ public class ProductMapper {
                 product.getCategory() != null ? product.getCategory().getName() : null,
                 product.getSeller() != null ? product.getSeller().getUsername() : null,
                 product.getImages() != null
-                        ? product.getImages().stream().map(img -> img.getUrl()).collect(Collectors.toList())
+                        ? product.getImages().stream()
+                                  .map(img -> Base64.getEncoder().encodeToString(img.getImageData()))
+                                  .collect(Collectors.toList())
                         : null,
                 product.getStock(),
                 product.getDiscountPercentage()
@@ -46,9 +94,10 @@ public class ProductMapper {
     private static double calcFinalPrice(Product product) {
         double finalPrice = product.getPrice();
         if (product.getDiscountPercentage() != null && product.getDiscountPercentage() > 0) {
-            finalPrice = finalPrice - (finalPrice * product.getDiscountPercentage() / 100);
+            finalPrice -= (finalPrice * product.getDiscountPercentage() / 100);
         }
         return finalPrice;
     }
 }
+
 

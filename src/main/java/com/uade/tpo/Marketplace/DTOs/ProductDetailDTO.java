@@ -17,7 +17,7 @@ public class ProductDetailDTO {
     private Double finalPrice;
     private String categoryName;
     private String sellerUsername;
-    private List<String> images;
+    private List<String> imagesBase64;
     private Integer stock;
     private Double discountPercentage;
 }

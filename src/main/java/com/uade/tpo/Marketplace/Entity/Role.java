@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Data
 @Entity
 public class Role {
@@ -16,5 +18,6 @@ public class Role {
     private String name; // ADMIN, BUYER, SELLER
 
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     private List<User> users;
 }
