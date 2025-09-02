@@ -1,4 +1,4 @@
-package com.uade.tpo.Marketplace.DTOs.Mapper; // Placing it in the same package as ProductMapper
+package com.uade.tpo.Marketplace.DTOs.Mapper;
 
 import com.uade.tpo.Marketplace.DTOs.CategoryDetailDTO;
 import com.uade.tpo.Marketplace.DTOs.CategoryListDTO;

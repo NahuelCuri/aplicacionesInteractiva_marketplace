@@ -15,7 +15,7 @@ public class Role {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name; // ADMIN, BUYER, SELLER
+    private String name; 
 
     @ManyToMany(mappedBy = "roles")
     @JsonBackReference

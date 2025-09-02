@@ -1,6 +1,5 @@
 package com.uade.tpo.Marketplace.Entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
