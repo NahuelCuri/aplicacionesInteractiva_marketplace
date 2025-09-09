@@ -81,4 +81,19 @@ public class OrderServiceImpl implements OrderService {
                 .map(orderMapper::toOrderResponseDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public void deleteOrder(Long orderId, Long buyerId) {
+        Order order = orderRepository.findByIdAndBuyerId(orderId, buyerId)
+                .orElseThrow(() -> new RuntimeException("Order not found or access denied"));
+
+        for (OrderItem item : order.getItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        orderRepository.delete(order);
+    }
 }

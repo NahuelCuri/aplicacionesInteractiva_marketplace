@@ -58,5 +58,11 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    // falta el borrar
+    @DeleteMapping("/users/{buyerId}/orders/{orderId}")
+    public ResponseEntity<Void> deleteOrder(
+            @PathVariable Long buyerId,
+            @PathVariable Long orderId) {
+        orderService.deleteOrder(orderId, buyerId);
+        return ResponseEntity.noContent().build();
+    }
 }

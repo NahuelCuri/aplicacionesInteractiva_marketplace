@@ -11,4 +11,5 @@ public interface OrderService {
     OrderResponseDTO createOrder(OrderRequestDTO orderRequestDTO, User buyer);
     Optional<OrderResponseDTO> getOrderByIdAndBuyerId(Long orderId, Long buyerId);
     List<OrderResponseDTO> getOrdersByBuyerId(Long buyerId);
+    void deleteOrder(Long orderId, Long buyerId);
 }
