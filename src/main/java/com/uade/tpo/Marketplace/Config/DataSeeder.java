@@ -50,28 +50,36 @@ public class DataSeeder implements CommandLineRunner {
         if (roleRepository.count() == 0) {
             Role adminRole = new Role();
             adminRole.setName("ADMIN");
-            roleRepository.save(adminRole);
 
             Role userRole = new Role();
             userRole.setName("USER");
-            roleRepository.save(userRole);
+
+            Role buyerRole = new Role();
+            buyerRole.setName("BUYER");
+
+            Role sellerRole = new Role();
+            sellerRole.setName("SELLER");
+
+            roleRepository.saveAll(Arrays.asList(adminRole, userRole, buyerRole, sellerRole));
         }
 
         if (userRepository.count() == 0) {
             Role adminRole = roleRepository.findByName("ADMIN").orElseThrow(() -> new RuntimeException("Admin role not found"));
+            Role buyerRole = roleRepository.findByName("BUYER").orElseThrow(() -> new RuntimeException("Buyer role not found"));
+            Role sellerRole = roleRepository.findByName("SELLER").orElseThrow(() -> new RuntimeException("Seller role not found"));
+
             User admin = new User();
             admin.setUsername("admin");
             admin.setEmail("admin@marketplace.com");
             admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setRoles(Collections.singletonList(adminRole));
+            admin.setRoles(Arrays.asList(adminRole, buyerRole, sellerRole));
             userRepository.save(admin);
 
-            Role userRole = roleRepository.findByName("USER").orElseThrow(() -> new RuntimeException("User role not found"));
             User user = new User();
             user.setUsername("user");
             user.setEmail("user@marketplace.com");
             user.setPassword(passwordEncoder.encode("user"));
-            user.setRoles(Collections.singletonList(userRole));
+            user.setRoles(Collections.singletonList(buyerRole));
             userRepository.save(user);
         }
 

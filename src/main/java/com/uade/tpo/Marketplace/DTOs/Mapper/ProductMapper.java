@@ -66,6 +66,7 @@ public class ProductMapper {
                 product.getName(),
                 finalPrice,
                 product.getCategory() != null ? product.getCategory().getName() : null,
+                product.getCategory() != null ? product.getCategory().getId() : null,
                 mainImageBase64
         );
     }

@@ -1,6 +1,7 @@
 package com.uade.tpo.Marketplace.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +13,7 @@ import com.uade.tpo.Marketplace.Config.AuthenticationRequest;
 import com.uade.tpo.Marketplace.Config.AuthenticationResponse;
 import com.uade.tpo.Marketplace.Config.JwtService;
 import com.uade.tpo.Marketplace.Config.RegisterRequest;
+import com.uade.tpo.Marketplace.DTOs.AuthUserDTO;
 import com.uade.tpo.Marketplace.Entity.User;
 import com.uade.tpo.Marketplace.Repository.RoleRepository;
 import com.uade.tpo.Marketplace.Repository.UserRepository;
@@ -47,10 +49,18 @@ public class AuthenticationService {
                                 .roles(List.of(role))
                                 .build();
 
-                repository.save(user);
+                var savedUser = repository.save(user);
                 var jwtToken = jwtService.generateToken(user);
+                
+                List<String> roles = savedUser.getRoles().stream()
+                                .map(Role::getName)
+                                .collect(Collectors.toList());
+
+                AuthUserDTO authUserDTO = new AuthUserDTO(savedUser.getUsername(), roles);
+
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
+                                .user(authUserDTO)
                                 .build();
         }
 
@@ -62,8 +72,16 @@ public class AuthenticationService {
                 var user = repository.findByEmail(request.getEmail())
                                 .orElseThrow();
                 var jwtToken = jwtService.generateToken(user);
+                
+                List<String> roles = user.getRoles().stream()
+                                .map(Role::getName)
+                                .collect(Collectors.toList());
+
+                AuthUserDTO authUserDTO = new AuthUserDTO(user.getUsername(), roles);
+
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
+                                .user(authUserDTO)
                                 .build();
         }
 }

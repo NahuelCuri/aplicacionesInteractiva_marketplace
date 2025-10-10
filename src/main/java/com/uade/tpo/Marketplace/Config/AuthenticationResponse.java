@@ -1,6 +1,7 @@
 package com.uade.tpo.Marketplace.Config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.uade.tpo.Marketplace.DTOs.AuthUserDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,4 +16,7 @@ public class AuthenticationResponse {
 
     @JsonProperty("access_token")
     private String accessToken;
+
+    @JsonProperty("user")
+    private AuthUserDTO user;
 }
