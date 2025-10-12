@@ -56,7 +56,7 @@ public class AuthenticationService {
                                 .map(Role::getName)
                                 .collect(Collectors.toList());
 
-                AuthUserDTO authUserDTO = new AuthUserDTO(savedUser.getUsername(), roles);
+                AuthUserDTO authUserDTO = new AuthUserDTO(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), roles);
 
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
@@ -77,7 +77,7 @@ public class AuthenticationService {
                                 .map(Role::getName)
                                 .collect(Collectors.toList());
 
-                AuthUserDTO authUserDTO = new AuthUserDTO(user.getUsername(), roles);
+                AuthUserDTO authUserDTO = new AuthUserDTO(user.getId(), user.getUsername(), user.getEmail(), roles);
 
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
