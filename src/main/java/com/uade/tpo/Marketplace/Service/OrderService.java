@@ -12,4 +12,6 @@ public interface OrderService {
     Optional<OrderResponseDTO> getOrderByIdAndBuyerId(Long orderId, Long buyerId);
     List<OrderResponseDTO> getOrdersByBuyerId(Long buyerId);
     void deleteOrder(Long orderId, Long buyerId);
+    OrderResponseDTO getCart(User buyer);
+    OrderResponseDTO addItemToCart(User buyer, com.uade.tpo.Marketplace.DTOs.OrderItemRequestDTO itemRequest);
 }

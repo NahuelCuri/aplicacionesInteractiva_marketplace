@@ -8,6 +8,7 @@ import com.uade.tpo.Marketplace.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,7 +22,27 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
-    private UserRepository userRepository; 
+    private UserRepository userRepository;
+
+    @GetMapping("/cart")
+    public ResponseEntity<OrderResponseDTO> getCart(@AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User must be logged in to view cart");
+        }
+        OrderResponseDTO cart = orderService.getCart(currentUser);
+        return ResponseEntity.ok(cart);
+    }
+
+    @PostMapping("/cart/items")
+    public ResponseEntity<OrderResponseDTO> addItemToCart(
+            @AuthenticationPrincipal User currentUser,
+            @RequestBody com.uade.tpo.Marketplace.DTOs.OrderItemRequestDTO itemRequest) {
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User must be logged in to add items to cart");
+        }
+        OrderResponseDTO updatedCart = orderService.addItemToCart(currentUser, itemRequest);
+        return ResponseEntity.ok(updatedCart);
+    }
 
     @PostMapping("/users/{buyerId}/orders")
     public ResponseEntity<OrderResponseDTO> createOrder(

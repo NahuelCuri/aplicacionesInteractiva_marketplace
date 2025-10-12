@@ -83,6 +83,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderResponseDTO getCart(User buyer) {
+        Optional<Order> cart = orderRepository.findByBuyerIdAndStatus(buyer.getId(), OrderStatus.CART);
+        if (cart.isPresent()) {
+            return orderMapper.toOrderResponseDTO(cart.get());
+        } else {
+            Order newCart = new Order();
+            newCart.setBuyer(buyer);
+            newCart.setCreatedAt(LocalDateTime.now());
+            newCart.setStatus(OrderStatus.CART);
+            newCart.setItems(new ArrayList<>());
+            newCart.setTotalPrice(0.0);
+            orderRepository.save(newCart);
+            return orderMapper.toOrderResponseDTO(newCart);
+        }
+    }
+
+    @Override
     @Transactional
     public void deleteOrder(Long orderId, Long buyerId) {
         Order order = orderRepository.findByIdAndBuyerId(orderId, buyerId)
@@ -95,5 +112,52 @@ public class OrderServiceImpl implements OrderService {
         }
 
         orderRepository.delete(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponseDTO addItemToCart(User buyer, OrderItemRequestDTO itemRequest) {
+        Order cart = orderRepository.findByBuyerIdAndStatus(buyer.getId(), OrderStatus.CART)
+                .orElseGet(() -> {
+                    Order newCart = new Order();
+                    newCart.setBuyer(buyer);
+                    newCart.setCreatedAt(LocalDateTime.now());
+                    newCart.setStatus(OrderStatus.CART);
+                    newCart.setItems(new ArrayList<>());
+                    newCart.setTotalPrice(0.0);
+                    return orderRepository.save(newCart);
+                });
+
+        Product product = productRepository.findById(itemRequest.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + itemRequest.getProductId()));
+
+        if (product.getStock() < itemRequest.getQuantity()) {
+            throw new IllegalStateException("Insufficient stock for product: " + product.getName());
+        }
+
+        Optional<OrderItem> existingItem = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(itemRequest.getProductId()))
+                .findFirst();
+
+        if (existingItem.isPresent()) {
+            OrderItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + itemRequest.getQuantity());
+        } else {
+            OrderItem newItem = new OrderItem();
+            newItem.setProduct(product);
+            newItem.setQuantity(itemRequest.getQuantity());
+            newItem.setPriceAtPurchase(product.getPrice());
+            newItem.setOrder(cart);
+            cart.getItems().add(newItem);
+        }
+
+        // Recalculate total price
+        double totalPrice = cart.getItems().stream()
+                .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
+                .sum();
+        cart.setTotalPrice(totalPrice);
+
+        Order savedCart = orderRepository.save(cart);
+        return orderMapper.toOrderResponseDTO(savedCart);
     }
 }
