@@ -44,6 +44,29 @@ public class OrderController {
         return ResponseEntity.ok(updatedCart);
     }
 
+    @PutMapping("/cart/items/{productId}")
+    public ResponseEntity<Void> updateCartItemQuantity(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long productId,
+            @RequestBody com.uade.tpo.Marketplace.DTOs.OrderItemRequestDTO itemRequest) {
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User must be logged in to update item quantity");
+        }
+        orderService.updateCartItemQuantity(currentUser, productId, itemRequest.getQuantity());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/cart/items/{productId}")
+    public ResponseEntity<Void> removeItemFromCart(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable Long productId) {
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User must be logged in to remove items from cart");
+        }
+        orderService.removeItemFromCart(currentUser, productId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/users/{buyerId}/orders")
     public ResponseEntity<OrderResponseDTO> createOrder(
             @PathVariable Long buyerId,

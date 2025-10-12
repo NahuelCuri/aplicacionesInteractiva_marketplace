@@ -160,4 +160,48 @@ public class OrderServiceImpl implements OrderService {
         Order savedCart = orderRepository.save(cart);
         return orderMapper.toOrderResponseDTO(savedCart);
     }
+
+    @Override
+    @Transactional
+    public void updateCartItemQuantity(User buyer, Long productId, Integer quantity) {
+        Order cart = orderRepository.findByBuyerIdAndStatus(buyer.getId(), OrderStatus.CART)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        OrderItem itemToUpdate = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Item not found in cart"));
+
+        itemToUpdate.setQuantity(quantity);
+
+        // Recalculate total price
+        double totalPrice = cart.getItems().stream()
+                .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
+                .sum();
+        cart.setTotalPrice(totalPrice);
+
+        orderRepository.save(cart);
+    }
+
+    @Override
+    @Transactional
+    public void removeItemFromCart(User buyer, Long productId) {
+        Order cart = orderRepository.findByBuyerIdAndStatus(buyer.getId(), OrderStatus.CART)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        OrderItem itemToRemove = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Item not found in cart"));
+
+        cart.getItems().remove(itemToRemove);
+
+        // Recalculate total price
+        double totalPrice = cart.getItems().stream()
+                .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
+                .sum();
+        cart.setTotalPrice(totalPrice);
+
+        orderRepository.save(cart);
+    }
 }

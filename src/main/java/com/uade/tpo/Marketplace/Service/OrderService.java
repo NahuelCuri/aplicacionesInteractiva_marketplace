@@ -14,4 +14,6 @@ public interface OrderService {
     void deleteOrder(Long orderId, Long buyerId);
     OrderResponseDTO getCart(User buyer);
     OrderResponseDTO addItemToCart(User buyer, com.uade.tpo.Marketplace.DTOs.OrderItemRequestDTO itemRequest);
+    void removeItemFromCart(User currentUser, Long productId);
+    void updateCartItemQuantity(User currentUser, Long productId, Integer quantity);
 }
