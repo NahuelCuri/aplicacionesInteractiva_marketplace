@@ -13,5 +13,7 @@ public interface ProductService {
     List<ProductListDTO> searchProductsByName(String name);
     List<ProductListDTO> getProductsByCategory(Long categoryId);
     ProductDetailDTO createProduct(ProductCreateDTO dto);
+    List<ProductListDTO> getProductsBySeller();
+    List<ProductListDTO> searchProductsByNameAndSeller(String name);
 }
 

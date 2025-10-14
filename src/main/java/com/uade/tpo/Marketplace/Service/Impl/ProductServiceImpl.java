@@ -19,6 +19,8 @@ import com.uade.tpo.Marketplace.Repository.UserRepository;
 import com.uade.tpo.Marketplace.Service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -121,6 +123,32 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Error fetching saved product"));
 
         return ProductMapper.toDetailDTO(savedProduct);
+    }
+
+    @Override
+    public List<ProductListDTO> getProductsBySeller() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User seller = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        return productRepository.findBySellerId(seller.getId())
+                .stream()
+                .map(ProductMapper::toSimpleDTO)
+                .toList();
+    }
+
+    @Override
+    public List<ProductListDTO> searchProductsByNameAndSeller(String name) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User seller = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        return productRepository.findByNameContainingIgnoreCaseAndSeller(name, seller)
+                .stream()
+                .map(ProductMapper::toSimpleDTO)
+                .toList();
     }
 }
 

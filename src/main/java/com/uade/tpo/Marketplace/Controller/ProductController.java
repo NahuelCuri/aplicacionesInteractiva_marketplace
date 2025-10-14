@@ -8,6 +8,7 @@ import com.uade.tpo.Marketplace.Service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +44,18 @@ public class ProductController {
     public ResponseEntity<ProductDetailDTO> createProduct(@ModelAttribute ProductCreateDTO productCreateDTO) {
         ProductDetailDTO created = productService.createProduct(productCreateDTO);
         return ResponseEntity.ok(created);
+    }
+
+    @GetMapping("/my-products")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<List<ProductListDTO>> getProductsBySeller() {
+        return ResponseEntity.ok(productService.getProductsBySeller());
+    }
+
+    @GetMapping("/my-products/search")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<List<ProductListDTO>> searchProductsByNameAndSeller(@RequestParam String name) {
+        return ResponseEntity.ok(productService.searchProductsByNameAndSeller(name));
     }
 }
 

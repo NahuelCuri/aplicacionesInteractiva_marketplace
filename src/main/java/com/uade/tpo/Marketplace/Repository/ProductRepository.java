@@ -1,6 +1,7 @@
 package com.uade.tpo.Marketplace.Repository;
 
 import com.uade.tpo.Marketplace.Entity.Product;
+import com.uade.tpo.Marketplace.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategoryId(Long categoryId);
     List<Product> findBySellerId(Long sellerId);
     List<Product> findByNameContainingIgnoreCase(String name);
+    List<Product> findByNameContainingIgnoreCaseAndSeller(String name, User seller);
 }

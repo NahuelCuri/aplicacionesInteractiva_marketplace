@@ -96,7 +96,7 @@ public class DataSeeder implements CommandLineRunner {
         if (productRepository.count() == 0) {
             Faker faker = new Faker();
             Random random = new Random();
-            User seller = userRepository.findByUsername("user").orElseThrow(() -> new RuntimeException("User not found"));
+            User seller = userRepository.findByUsername("admin").orElseThrow(() -> new RuntimeException("User not found"));
             List<Category> categories = categoryRepository.findAll();
 
             for (int i = 0; i < 200; i++) {
