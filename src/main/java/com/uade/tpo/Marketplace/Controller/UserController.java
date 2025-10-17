@@ -52,4 +52,9 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/become-seller")
+    public ResponseEntity<com.uade.tpo.Marketplace.Config.AuthenticationResponse> becomeSeller() {
+        return ResponseEntity.ok(userService.becomeSeller());
+    }
 }

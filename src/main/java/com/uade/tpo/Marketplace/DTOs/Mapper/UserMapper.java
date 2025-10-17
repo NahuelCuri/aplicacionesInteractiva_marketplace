@@ -2,6 +2,7 @@ package com.uade.tpo.Marketplace.DTOs.Mapper;
 
 import com.uade.tpo.Marketplace.DTOs.RoleDTO;
 import com.uade.tpo.Marketplace.DTOs.UserDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.AuthUserDTO;
 import com.uade.tpo.Marketplace.Entity.Role;
 import com.uade.tpo.Marketplace.Entity.User;
 
@@ -31,5 +32,14 @@ public class UserMapper {
         dto.setId(role.getId());
         dto.setName(role.getName());
         return dto;
+    }
+
+    public static AuthUserDTO toAuthUserDTO(User user) {
+        return new AuthUserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRoles().stream().map(Role::getName).collect(Collectors.toList())
+        );
     }
 }

@@ -13,4 +13,5 @@ public interface UserService {
     UserDetailDTO updateUser(Long id, UserUpdateDTO userUpdateDTO);
     void deleteUser(Long id);
     List<UserDetailDTO> searchUsersByUsername(String username);
+    com.uade.tpo.Marketplace.Config.AuthenticationResponse becomeSeller();
 }

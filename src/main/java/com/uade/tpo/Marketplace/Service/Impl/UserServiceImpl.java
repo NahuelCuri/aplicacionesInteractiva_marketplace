@@ -9,6 +9,8 @@ import com.uade.tpo.Marketplace.Entity.User;
 import com.uade.tpo.Marketplace.Repository.RoleRepository;
 import com.uade.tpo.Marketplace.Repository.UserRepository;
 import com.uade.tpo.Marketplace.Service.UserService;
+import com.uade.tpo.Marketplace.Config.JwtService;
+import com.uade.tpo.Marketplace.Config.AuthenticationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,10 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRepository; 
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private JwtService jwtService;
 
     @Override
     public UserDetailDTO createUser(UserRegistrationDTO userRegistrationDTO) {
@@ -96,5 +101,25 @@ public class UserServiceImpl implements UserService {
             throw new NoSuchElementException("User not found with id " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public AuthenticationResponse becomeSeller() {
+        org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User user = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Role sellerRole = roleRepository.findByName("SELLER")
+                .orElseThrow(() -> new RuntimeException("Error: Role 'SELLER' not found in database."));
+
+        user.getRoles().add(sellerRole);
+        userRepository.save(user);
+
+        String jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .accessToken(jwtToken)
+                .user(UserMapper.toAuthUserDTO(user))
+                .build();
     }
 }
