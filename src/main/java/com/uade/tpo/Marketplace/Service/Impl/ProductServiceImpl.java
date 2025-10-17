@@ -150,5 +150,52 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductMapper::toSimpleDTO)
                 .toList();
     }
+
+    @Override
+    public ProductDetailDTO updateProduct(Long id, com.uade.tpo.Marketplace.DTOs.ProductUpdateDTO productUpdateDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User seller = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getSeller().getId().equals(seller.getId())) {
+            throw new RuntimeException("You are not authorized to update this product");
+        }
+
+        product.setName(productUpdateDTO.getName());
+        product.setDescription(productUpdateDTO.getDescription());
+        product.setPrice(productUpdateDTO.getPrice());
+        product.setStock(productUpdateDTO.getStock());
+        product.setDiscountPercentage(productUpdateDTO.getDiscountPercentage());
+
+        Category category = categoryRepository.findById(productUpdateDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        product.setCategory(category);
+
+        if (productUpdateDTO.getImagesToDelete() != null) {
+            for (String imageId : productUpdateDTO.getImagesToDelete()) {
+                productImageRepository.deleteById(Long.parseLong(imageId));
+            }
+        }
+
+        if (productUpdateDTO.getNewImages() != null) {
+            for (MultipartFile file : productUpdateDTO.getNewImages()) {
+                try {
+                    ProductImage img = new ProductImage();
+                    img.setImageData(file.getBytes());
+                    img.setProduct(product);
+                    productImageRepository.save(img);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error saving image", e);
+                }
+            }
+        }
+
+        Product updatedProduct = productRepository.save(product);
+        return ProductMapper.toDetailDTO(updatedProduct);
+    }
 }
 

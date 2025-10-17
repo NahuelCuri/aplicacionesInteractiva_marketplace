@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import com.uade.tpo.Marketplace.DTOs.ProductImageDTO;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +19,7 @@ public class ProductDetailDTO {
     private Double finalPrice;
     private String categoryName;
     private String sellerUsername;
-    private List<String> imagesBase64;
+    private List<ProductImageDTO> images;
     private Integer stock;
     private Double discountPercentage;
 }

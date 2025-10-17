@@ -1,7 +1,7 @@
 package com.uade.tpo.Marketplace.Service.Impl;
 
 import com.uade.tpo.Marketplace.DTOs.Mapper.ProductImageMapper;
-import com.uade.tpo.Marketplace.DTOs.ProductImageInfoDTO;
+import com.uade.tpo.Marketplace.DTOs.ProductImageDTO;
 import com.uade.tpo.Marketplace.Entity.Product;
 import com.uade.tpo.Marketplace.Entity.ProductImage;
 import com.uade.tpo.Marketplace.Repository.ProductImageRepository;
@@ -25,7 +25,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     private ProductImageRepository productImageRepository;
 
     @Override
-    public ProductImageInfoDTO addImageToProduct(Long productId, byte[] imageData) {
+    public ProductImageDTO addImageToProduct(Long productId, byte[] imageData) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id " + productId));
 
@@ -34,7 +34,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         productImage.setProduct(product);
 
         ProductImage savedImage = productImageRepository.save(productImage);
-        return ProductImageMapper.toProductImageInfoDTO(savedImage); 
+        return ProductImageMapper.toProductImageDTO(savedImage); 
     }
 
     @Override
@@ -44,9 +44,9 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    public List<ProductImageInfoDTO> getImagesByProduct(Long productId) {
+    public List<ProductImageDTO> getImagesByProduct(Long productId) {
         return productImageRepository.findByProductId(productId).stream()
-                .map(ProductImageMapper::toProductImageInfoDTO) 
+                .map(ProductImageMapper::toProductImageDTO) 
                 .collect(Collectors.toList());
     }
 

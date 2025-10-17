@@ -2,6 +2,7 @@ package com.uade.tpo.Marketplace.DTOs.Mapper;
 
 import com.uade.tpo.Marketplace.DTOs.ProductCreateDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductDetailDTO;
+import com.uade.tpo.Marketplace.DTOs.ProductImageDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductListDTO;
 import com.uade.tpo.Marketplace.Entity.Category;
 import com.uade.tpo.Marketplace.Entity.Product;
@@ -84,7 +85,12 @@ public class ProductMapper {
                 product.getSeller() != null ? product.getSeller().getUsername() : null,
                 product.getImages() != null
                         ? product.getImages().stream()
-                                  .map(img -> Base64.getEncoder().encodeToString(img.getImageData()))
+                                  .map(img -> {
+                                      ProductImageDTO dto = new ProductImageDTO();
+                                      dto.setId(img.getId());
+                                      dto.setContent(Base64.getEncoder().encodeToString(img.getImageData()));
+                                      return dto;
+                                  })
                                   .collect(Collectors.toList())
                         : null,
                 product.getStock(),

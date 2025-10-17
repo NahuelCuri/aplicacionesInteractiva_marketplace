@@ -37,6 +37,7 @@ public class SecurityConfig {
 
                         // Seller endpoints
                         .requestMatchers(HttpMethod.POST, "/products").hasAuthority("SELLER")
+                        .requestMatchers(HttpMethod.PUT, "/products/**").hasAuthority("SELLER")
                         .requestMatchers(HttpMethod.POST, "/product-images/**").hasAuthority("SELLER")
                         .requestMatchers(HttpMethod.DELETE, "/product-images/**").hasAuthority("SELLER")
 

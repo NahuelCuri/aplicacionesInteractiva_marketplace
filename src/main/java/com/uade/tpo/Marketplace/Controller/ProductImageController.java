@@ -1,6 +1,6 @@
 package com.uade.tpo.Marketplace.Controller;
 
-import com.uade.tpo.Marketplace.DTOs.ProductImageInfoDTO;
+import com.uade.tpo.Marketplace.DTOs.ProductImageDTO;
 import com.uade.tpo.Marketplace.Entity.ProductImage;
 import com.uade.tpo.Marketplace.Service.ProductImageService;
 
@@ -21,13 +21,13 @@ public class ProductImageController {
     private  ProductImageService productImageService;
 
 
-    @PostMapping("/{productId}")
-    public ResponseEntity<ProductImageInfoDTO> uploadImage(
-            @PathVariable Long productId,
-            @RequestParam("file") MultipartFile file
-    ) throws IOException {
-        ProductImageInfoDTO savedImageInfo = productImageService.addImageToProduct(productId, file.getBytes());
-        return ResponseEntity.ok(savedImageInfo);
+    public ResponseEntity<ProductImageDTO> addImageToProduct( @PathVariable Long productId, @RequestParam("image") MultipartFile imageFile) {
+        try {
+            ProductImageDTO savedImage = productImageService.addImageToProduct(productId, imageFile.getBytes());
+            return ResponseEntity.ok(savedImage);
+        } catch (java.io.IOException e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @GetMapping("/{id}")
@@ -39,7 +39,7 @@ public class ProductImageController {
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<List<ProductImageInfoDTO>> getImagesByProduct(@PathVariable Long productId) {
+    public ResponseEntity<List<ProductImageDTO>> getImagesByProduct(@PathVariable Long productId) {
         return ResponseEntity.ok(productImageService.getImagesByProduct(productId));
     }
 
