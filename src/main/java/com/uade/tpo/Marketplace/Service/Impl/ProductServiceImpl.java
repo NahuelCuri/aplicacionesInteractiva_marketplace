@@ -77,16 +77,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailDTO createProduct(ProductCreateDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User seller = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
         Product product = new Product();
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setDiscountPercentage(dto.getDiscountPercentage());
-
-
-        User seller = userRepository.findById(dto.getSellerId())
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
 
         boolean isAlreadySeller = seller.getRoles().stream()
                                         .anyMatch(role -> "SELLER".equals(role.getName()));
@@ -215,4 +216,3 @@ public class ProductServiceImpl implements ProductService {
         productRepository.delete(product);
     }
 }
-

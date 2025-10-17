@@ -29,12 +29,6 @@ public class ProductMapper {
             product.setCategory(category);
         }
 
-        if (dto.getSellerId() != null) {
-            User seller = new User();
-            seller.setId(dto.getSellerId());
-            product.setSeller(seller);
-        }
-
         if (dto.getImages() != null && !dto.getImages().isEmpty()) {
             product.setImages(
                 dto.getImages().stream().map(file -> {

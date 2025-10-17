@@ -41,7 +41,9 @@ public class ProductController {
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ProductDetailDTO> createProduct(@ModelAttribute ProductCreateDTO productCreateDTO) {
+        System.out.println("Received productCreateDTO: " + productCreateDTO);
         ProductDetailDTO created = productService.createProduct(productCreateDTO);
         return ResponseEntity.ok(created);
     }

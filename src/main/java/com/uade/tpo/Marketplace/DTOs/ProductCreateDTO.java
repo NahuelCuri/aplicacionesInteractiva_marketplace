@@ -15,6 +15,5 @@ public class ProductCreateDTO {
     private Integer stock;
     private Double discountPercentage;
     private Long categoryId;
-    private Long sellerId;
     private List<MultipartFile> images; 
 }
