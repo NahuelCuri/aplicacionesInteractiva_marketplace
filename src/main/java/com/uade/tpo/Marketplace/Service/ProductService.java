@@ -17,5 +17,6 @@ public interface ProductService {
     List<ProductListDTO> getProductsBySeller();
     List<ProductListDTO> searchProductsByNameAndSeller(String name);
     ProductDetailDTO updateProduct(Long id, ProductUpdateDTO productUpdateDTO);
+    void deleteProduct(Long id);
 }
 

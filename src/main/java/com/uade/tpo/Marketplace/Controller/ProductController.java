@@ -63,5 +63,12 @@ public class ProductController {
     public ResponseEntity<ProductDetailDTO> updateProduct(@PathVariable Long id, @ModelAttribute com.uade.tpo.Marketplace.DTOs.ProductUpdateDTO productUpdateDTO) {
         return ResponseEntity.ok(productService.updateProduct(id, productUpdateDTO));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 

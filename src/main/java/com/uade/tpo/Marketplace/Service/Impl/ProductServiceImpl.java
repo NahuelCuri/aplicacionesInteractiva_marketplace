@@ -197,5 +197,22 @@ public class ProductServiceImpl implements ProductService {
         Product updatedProduct = productRepository.save(product);
         return ProductMapper.toDetailDTO(updatedProduct);
     }
+
+    @Override
+    public void deleteProduct(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User seller = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getSeller().getId().equals(seller.getId())) {
+            throw new RuntimeException("You are not authorized to delete this product");
+        }
+
+        productRepository.delete(product);
+    }
 }
 
