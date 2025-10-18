@@ -88,8 +88,12 @@ public class UserServiceImpl implements UserService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id " + id));
         
-        existing.setEmail(userUpdateDTO.getEmail());
-        existing.setUsername(userUpdateDTO.getUsername());
+        if (userUpdateDTO.getEmail() != null && !userUpdateDTO.getEmail().isEmpty()) {
+            existing.setEmail(userUpdateDTO.getEmail());
+        }
+        if (userUpdateDTO.getUsername() != null && !userUpdateDTO.getUsername().isEmpty()) {
+            existing.setUsername(userUpdateDTO.getUsername());
+        }
 
         if (userUpdateDTO.getRoles() != null) {
             List<Role> roles = userUpdateDTO.getRoles().stream()

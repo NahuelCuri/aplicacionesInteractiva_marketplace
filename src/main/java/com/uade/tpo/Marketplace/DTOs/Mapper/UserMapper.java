@@ -15,7 +15,7 @@ public class UserMapper {
     public static UserDetailDTO toUserDetailDTO(User user) {
         UserDetailDTO dto = new UserDetailDTO();
         dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
+        dto.setUsername(user.getRealUsername());
         dto.setEmail(user.getEmail());
 
         if (user.getRoles() != null) {
@@ -37,7 +37,7 @@ public class UserMapper {
     public static AuthUserDTO toAuthUserDTO(User user) {
         return new AuthUserDTO(
                 user.getId(),
-                user.getUsername(),
+                user.getRealUsername(),
                 user.getEmail(),
                 user.getRoles().stream().map(Role::getName).collect(Collectors.toList())
         );
