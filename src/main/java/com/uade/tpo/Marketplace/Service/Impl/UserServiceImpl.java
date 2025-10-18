@@ -91,6 +91,14 @@ public class UserServiceImpl implements UserService {
         existing.setEmail(userUpdateDTO.getEmail());
         existing.setUsername(userUpdateDTO.getUsername());
 
+        if (userUpdateDTO.getRoles() != null) {
+            List<Role> roles = userUpdateDTO.getRoles().stream()
+                    .map(roleName -> roleRepository.findByName(roleName)
+                            .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
+                    .collect(Collectors.toList());
+            existing.setRoles(roles);
+        }
+
         User updatedUser = userRepository.save(existing);
         return UserMapper.toUserDetailDTO(updatedUser);
     }

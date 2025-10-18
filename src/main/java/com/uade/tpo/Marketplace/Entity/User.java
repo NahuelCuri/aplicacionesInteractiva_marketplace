@@ -38,15 +38,16 @@ public class User implements UserDetails {
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
+        inverseJoinColumns = @JoinColumn(name = "role_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"})
     )
     @JsonManagedReference
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "seller")
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
-    @OneToMany(mappedBy = "buyer")
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 
     @Builder
