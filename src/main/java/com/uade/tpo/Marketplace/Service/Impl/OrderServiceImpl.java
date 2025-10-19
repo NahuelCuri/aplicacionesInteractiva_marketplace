@@ -174,7 +174,7 @@ public class OrderServiceImpl implements OrderService {
 
         itemToUpdate.setQuantity(quantity);
 
-        // Recalculate total price
+        
         double totalPrice = cart.getItems().stream()
                 .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
                 .sum();
