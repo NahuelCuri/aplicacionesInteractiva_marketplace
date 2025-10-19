@@ -204,4 +204,17 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(cart);
     }
+
+    @Override
+    @Transactional
+    public OrderResponseDTO checkout(User currentUser) {
+        Order cart = orderRepository.findByBuyerIdAndStatus(currentUser.getId(), OrderStatus.CART)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        cart.setStatus(OrderStatus.PAID);
+
+        Order savedOrder = orderRepository.save(cart);
+
+        return orderMapper.toOrderResponseDTO(savedOrder);
+    }
 }

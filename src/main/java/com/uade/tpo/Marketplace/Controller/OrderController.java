@@ -109,4 +109,13 @@ public class OrderController {
         orderService.deleteOrder(orderId, buyerId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderResponseDTO> checkout(@AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User must be logged in to checkout");
+        }
+        OrderResponseDTO order = orderService.checkout(currentUser);
+        return ResponseEntity.ok(order);
+    }
 }
