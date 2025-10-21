@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDetailDTO> getAllUsers() {
-        return userRepository.findAll().stream()
+        return userRepository.findAllByEnabledTrue().stream()
                 .map(UserMapper::toUserDetailDTO)
                 .collect(Collectors.toList());
     }
@@ -109,10 +109,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new NoSuchElementException("User not found with id " + id);
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found with id " + id));
+        user.setEnabled(false);
+        userRepository.save(user);
     }
 
     @Override

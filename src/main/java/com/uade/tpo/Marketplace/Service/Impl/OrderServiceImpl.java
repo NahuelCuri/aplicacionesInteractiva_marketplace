@@ -46,19 +46,12 @@ public class OrderServiceImpl implements OrderService {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + itemRequest.getProductId()));
 
-            if (product.getStock() < itemRequest.getQuantity()) {
-                throw new IllegalStateException("Insufficient stock for product: " + product.getName());
-            }
-
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);
             orderItem.setQuantity(itemRequest.getQuantity());
             orderItem.setPriceAtPurchase(product.getPrice());
             orderItem.setOrder(order);
             order.getItems().add(orderItem);
-
-            product.setStock(product.getStock() - itemRequest.getQuantity());
-            productRepository.save(product);
 
             totalPrice += (product.getPrice() * itemRequest.getQuantity());
         }
@@ -210,6 +203,15 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDTO checkout(User currentUser) {
         Order cart = orderRepository.findByBuyerIdAndStatus(currentUser.getId(), OrderStatus.CART)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        for (OrderItem item : cart.getItems()) {
+            Product product = item.getProduct();
+            if (product.getStock() < item.getQuantity()) {
+                throw new IllegalStateException("Insufficient stock for product: " + product.getName());
+            }
+            product.setStock(product.getStock() - item.getQuantity());
+            productRepository.save(product);
+        }
 
         cart.setStatus(OrderStatus.PAID);
 

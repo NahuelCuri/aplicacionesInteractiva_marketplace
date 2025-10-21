@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListDTO> getAllProducts() {
-        return productRepository.findAll()
+        return productRepository.findAllByDeletedFalse()
                 .stream()
                 .map(ProductMapper::toSimpleDTO)
                 .toList();
@@ -55,13 +55,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDetailDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
+                .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         return ProductMapper.toDetailDTO(product);
     }
 
     @Override
     public List<ProductListDTO> searchProductsByName(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name)
+        return productRepository.findByNameContainingIgnoreCaseAndDeletedFalse(name)
                 .stream()
                 .map(ProductMapper::toSimpleDTO)
                 .toList();
@@ -69,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListDTO> getProductsByCategory(Long categoryId) {
-        return productRepository.findByCategoryId(categoryId)
+        return productRepository.findByCategoryIdAndDeletedFalse(categoryId)
                 .stream()
                 .map(ProductMapper::toSimpleDTO)
                 .toList();
@@ -133,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
-        return productRepository.findBySellerId(seller.getId())
+        return productRepository.findBySellerIdAndDeletedFalse(seller.getId())
                 .stream()
                 .map(ProductMapper::toSimpleDTO)
                 .toList();
@@ -146,7 +147,7 @@ public class ProductServiceImpl implements ProductService {
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
-        return productRepository.findByNameContainingIgnoreCaseAndSeller(name, seller)
+        return productRepository.findByNameContainingIgnoreCaseAndSellerAndDeletedFalse(name, seller)
                 .stream()
                 .map(ProductMapper::toSimpleDTO)
                 .toList();
@@ -213,6 +214,7 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("You are not authorized to delete this product");
         }
 
-        productRepository.delete(product);
+        product.setDeleted(true);
+        productRepository.save(product);
     }
 }

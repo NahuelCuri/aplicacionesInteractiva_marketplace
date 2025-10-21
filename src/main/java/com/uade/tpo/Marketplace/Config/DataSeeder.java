@@ -70,18 +70,20 @@ public class DataSeeder implements CommandLineRunner {
 
             User admin = new User();
             admin.setUsername("admin");
-            admin.setEmail("admin@marketplace.com");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setRoles(Arrays.asList(adminRole, buyerRole, sellerRole));
-            userRepository.save(admin);
-
-            User user = new User();
-            user.setUsername("user");
-            user.setEmail("user@marketplace.com");
-            user.setPassword(passwordEncoder.encode("user"));
-            user.setRoles(Collections.singletonList(buyerRole));
-            userRepository.save(user);
-        }
+                        admin.setEmail("admin@marketplace.com");
+                        admin.setPassword(passwordEncoder.encode("admin"));
+                        admin.setRoles(Arrays.asList(adminRole, buyerRole, sellerRole));
+                        admin.setEnabled(true);
+                        userRepository.save(admin);
+            
+                        User user = new User();
+                        user.setUsername("user");
+                        user.setEmail("user@marketplace.com");
+                        user.setPassword(passwordEncoder.encode("user"));
+                        user.setRoles(Collections.singletonList(buyerRole));
+                        user.setEnabled(true);
+                        userRepository.save(user);
+                    }
 
         if (categoryRepository.count() == 0) {
             List<String> categories = Arrays.asList("Electronics", "Books", "Home & Garden", "Clothing", "Sports & Outdoors", "Toys & Games", "Health & Beauty");

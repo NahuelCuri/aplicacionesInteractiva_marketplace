@@ -50,12 +50,15 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 
+    private boolean enabled = true;
+
     @Builder
     private User(String username, String password, String email, List<Role> roles) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.roles = roles;
+        this.enabled = true;
     }
 
     @Override
@@ -91,7 +94,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 }
 
