@@ -75,6 +75,7 @@ public class ProductMapper {
                 product.getDescription(),
                 product.getPrice(),
                 finalPrice,
+                product.getCategory() != null ? product.getCategory().getId() : null,
                 product.getCategory() != null ? product.getCategory().getName() : null,
                 product.getSeller() != null ? product.getSeller().getUsername() : null,
                 product.getImages() != null

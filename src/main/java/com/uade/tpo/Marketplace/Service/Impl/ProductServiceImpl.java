@@ -83,13 +83,32 @@ public class ProductServiceImpl implements ProductService {
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
         Product product = new Product();
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setDiscountPercentage(dto.getDiscountPercentage());
+        product.setCategory(category);
+        product.setSeller(seller);
+        product.setImages(new java.util.ArrayList<>());
 
+        if (dto.getImages() != null) {
+            for (MultipartFile file : dto.getImages()) {
+                try {
+                    ProductImage img = new ProductImage();
+                    img.setImageData(file.getBytes());
+                    img.setProduct(product);
+                    product.getImages().add(img);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error saving image", e);
+                }
+            }
+        }
+        
         boolean isAlreadySeller = seller.getRoles().stream()
                                         .anyMatch(role -> "SELLER".equals(role.getName()));
 
@@ -100,30 +119,8 @@ public class ProductServiceImpl implements ProductService {
             seller.getRoles().add(sellerRole);
             userRepository.save(seller); 
         }
-        
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-        product.setCategory(category);
-        product.setSeller(seller);
 
         Product savedProduct = productRepository.save(product);
-
-        if (dto.getImages() != null) {
-            for (MultipartFile file : dto.getImages()) {
-                try {
-                    ProductImage img = new ProductImage();
-                    img.setImageData(file.getBytes());
-                    img.setProduct(savedProduct);
-                    productImageRepository.save(img);
-                } catch (Exception e) {
-                    throw new RuntimeException("Error saving image", e);
-                }
-            }
-        }
-
-        savedProduct = productRepository.findById(savedProduct.getId())
-                .orElseThrow(() -> new RuntimeException("Error fetching saved product"));
-
         return ProductMapper.toDetailDTO(savedProduct);
     }
 

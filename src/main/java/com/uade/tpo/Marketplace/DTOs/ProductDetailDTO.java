@@ -17,6 +17,7 @@ public class ProductDetailDTO {
     private String description;
     private Double price;
     private Double finalPrice;
+    private Long categoryId;
     private String categoryName;
     private String sellerUsername;
     private List<ProductImageDTO> images;
