@@ -50,7 +50,9 @@ public class AuthenticationService {
                                 .build();
 
                 var savedUser = repository.save(user);
-                var jwtToken = jwtService.generateToken(user);
+                var extraClaims = new java.util.HashMap<String, Object>();
+                extraClaims.put("userId", savedUser.getId());
+                var jwtToken = jwtService.generateToken(extraClaims, savedUser);
                 
                 List<String> roles = savedUser.getRoles().stream()
                                 .map(Role::getName)
@@ -71,7 +73,9 @@ public class AuthenticationService {
                                                 request.getPassword()));
                 var user = repository.findByEmail(request.getEmail())
                                 .orElseThrow();
-                var jwtToken = jwtService.generateToken(user);
+                var extraClaims = new java.util.HashMap<String, Object>();
+                extraClaims.put("userId", user.getId());
+                var jwtToken = jwtService.generateToken(extraClaims, user);
                 
                 List<String> roles = user.getRoles().stream()
                                 .map(Role::getName)

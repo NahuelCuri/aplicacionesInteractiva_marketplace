@@ -26,20 +26,25 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    public String generateToken(
-            UserDetails userDetails) {
-        return buildToken(userDetails, jwtExpiration);
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new java.util.HashMap<>(), userDetails);
+    }
+
+    public String generateToken(java.util.Map<String, Object> extraClaims, UserDetails userDetails) {
+        return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
     private String buildToken(
-            UserDetails userDetails,
-            long expiration) {
+            java.util.Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
+        
+        extraClaims.put("roles", userDetails.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList()));
+
         return Jwts
                 .builder()
+                .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSecretKey())

@@ -62,7 +62,8 @@ public class ProductMapper {
                 finalPrice,
                 product.getCategory() != null ? product.getCategory().getName() : null,
                 product.getCategory() != null ? product.getCategory().getId() : null,
-                mainImageBase64
+                mainImageBase64,
+                product.isDeleted()
         );
     }
 

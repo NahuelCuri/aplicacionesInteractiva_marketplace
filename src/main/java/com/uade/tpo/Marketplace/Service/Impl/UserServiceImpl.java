@@ -6,6 +6,7 @@ import com.uade.tpo.Marketplace.DTOs.UserRegistrationDTO;
 import com.uade.tpo.Marketplace.DTOs.UserUpdateDTO;
 import com.uade.tpo.Marketplace.Entity.Role;
 import com.uade.tpo.Marketplace.Entity.User;
+import com.uade.tpo.Marketplace.Repository.ProductRepository;
 import com.uade.tpo.Marketplace.Repository.RoleRepository;
 import com.uade.tpo.Marketplace.Repository.UserRepository;
 import com.uade.tpo.Marketplace.Service.UserService;
@@ -107,11 +108,30 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDetailDTO(updatedUser);
     }
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @Override
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id " + id));
+
+        // Soft-delete the user's products
+        List<com.uade.tpo.Marketplace.Entity.Product> products = user.getProducts();
+        if (products != null && !products.isEmpty()) {
+            for (com.uade.tpo.Marketplace.Entity.Product product : products) {
+                product.setDeleted(true);
+            }
+            productRepository.saveAll(products);
+        }
+        
+        // Anonymize user data
+        String anonymizedId = "deleted_user_" + user.getId();
         user.setEnabled(false);
+        user.setUsername(anonymizedId);
+        user.setEmail(anonymizedId + "@anonymous.com");
+        user.setPassword("anonymized");
+
         userRepository.save(user);
     }
 

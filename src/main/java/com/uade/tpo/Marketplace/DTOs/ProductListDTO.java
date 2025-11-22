@@ -14,4 +14,5 @@ public class ProductListDTO {
     private String categoryName;
     private Long categoryId;
     private String mainImageBase64;
+    private boolean deleted;
 }
