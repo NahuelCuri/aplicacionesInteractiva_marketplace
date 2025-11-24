@@ -124,6 +124,10 @@ public class OrderServiceImpl implements OrderService {
         Product product = productRepository.findById(itemRequest.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + itemRequest.getProductId()));
 
+        if (product.getSeller().getId().equals(buyer.getId())) {
+            throw new IllegalArgumentException("You cannot add your own product to the cart.");
+        }
+
         if (product.getStock() < itemRequest.getQuantity()) {
             throw new IllegalStateException("Insufficient stock for product: " + product.getName());
         }

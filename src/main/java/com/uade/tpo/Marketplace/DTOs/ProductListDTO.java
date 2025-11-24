@@ -15,6 +15,7 @@ public class ProductListDTO {
     private Double finalPrice;
     private String categoryName;
     private Long categoryId;
+    private Long sellerId;
     private List<Long> imageIds;
     private boolean deleted;
     private Integer stock;

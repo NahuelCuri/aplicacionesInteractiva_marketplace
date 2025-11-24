@@ -3,9 +3,7 @@ package com.uade.tpo.Marketplace.Config;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.function.Function;
-
 import java.util.stream.Collectors;
-
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -13,11 +11,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.Marketplace.Entity.User; // Import your custom User entity
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
-
 
 @Service
 public class JwtService {
@@ -37,9 +35,16 @@ public class JwtService {
     private String buildToken(
             java.util.Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         
+        // 1. Add Roles
         extraClaims.put("roles", userDetails.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList()));
+
+        // 2. Add User ID (Critical Fix)
+        if (userDetails instanceof User) {
+            User customUser = (User) userDetails;
+            extraClaims.put("userId", customUser.getId());
+        }
 
         return Jwts
                 .builder()

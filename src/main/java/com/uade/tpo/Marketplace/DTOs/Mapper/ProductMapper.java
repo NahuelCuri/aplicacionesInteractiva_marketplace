@@ -60,6 +60,7 @@ public class ProductMapper {
                 finalPrice,
                 product.getCategory() != null ? product.getCategory().getName() : null,
                 product.getCategory() != null ? product.getCategory().getId() : null,
+                product.getSeller() != null ? product.getSeller().getId() : null,
                 imageIds,
                 product.isDeleted(),
                 product.getStock()
@@ -78,6 +79,7 @@ public class ProductMapper {
                 product.getCategory() != null ? product.getCategory().getId() : null,
                 product.getCategory() != null ? product.getCategory().getName() : null,
                 product.getSeller() != null ? product.getSeller().getUsername() : null,
+                product.getSeller() != null ? product.getSeller().getId() : null,
                 product.getImages() != null
                         ? product.getImages().stream()
                                 .map(ProductImage::getId)
