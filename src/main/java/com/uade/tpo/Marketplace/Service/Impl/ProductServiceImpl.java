@@ -21,6 +21,7 @@ import com.uade.tpo.Marketplace.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -79,7 +80,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDetailDTO createProduct(ProductCreateDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUserEmail = userDetails.getUsername();
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
@@ -127,7 +129,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductListDTO> getProductsBySeller() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUserEmail = userDetails.getUsername();
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
@@ -140,7 +143,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductListDTO> searchProductsByNameAndSeller(String name) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUserEmail = userDetails.getUsername();
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
@@ -153,7 +157,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDetailDTO updateProduct(Long id, com.uade.tpo.Marketplace.DTOs.ProductUpdateDTO productUpdateDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUserEmail = userDetails.getUsername();
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 
@@ -200,7 +205,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserEmail = authentication.getName();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUserEmail = userDetails.getUsername();
         User seller = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
 

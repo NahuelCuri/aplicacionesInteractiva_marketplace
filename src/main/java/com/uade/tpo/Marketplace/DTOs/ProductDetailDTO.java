@@ -20,7 +20,7 @@ public class ProductDetailDTO {
     private Long categoryId;
     private String categoryName;
     private String sellerUsername;
-    private List<ProductImageDTO> images;
+    private List<Long> imageIds;
     private Integer stock;
     private Double discountPercentage;
 }

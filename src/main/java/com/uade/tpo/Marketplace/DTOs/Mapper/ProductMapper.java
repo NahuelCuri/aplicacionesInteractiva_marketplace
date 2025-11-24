@@ -7,8 +7,6 @@ import com.uade.tpo.Marketplace.DTOs.ProductListDTO;
 import com.uade.tpo.Marketplace.Entity.Category;
 import com.uade.tpo.Marketplace.Entity.Product;
 import com.uade.tpo.Marketplace.Entity.ProductImage;
-import com.uade.tpo.Marketplace.Entity.User;
-
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.util.Base64;
@@ -49,9 +47,9 @@ public class ProductMapper {
 
 
     public static ProductListDTO toSimpleDTO(Product product) {
-        String mainImageBase64 = null;
+        java.util.List<Long> imageIds = null;
         if (product.getImages() != null && !product.getImages().isEmpty()) {
-            mainImageBase64 = Base64.getEncoder().encodeToString(product.getImages().get(0).getImageData());
+            imageIds = product.getImages().stream().map(ProductImage::getId).collect(Collectors.toList());
         }
 
         double finalPrice = calcFinalPrice(product);
@@ -62,7 +60,7 @@ public class ProductMapper {
                 finalPrice,
                 product.getCategory() != null ? product.getCategory().getName() : null,
                 product.getCategory() != null ? product.getCategory().getId() : null,
-                mainImageBase64,
+                imageIds,
                 product.isDeleted(),
                 product.getStock()
         );
@@ -82,13 +80,8 @@ public class ProductMapper {
                 product.getSeller() != null ? product.getSeller().getUsername() : null,
                 product.getImages() != null
                         ? product.getImages().stream()
-                                  .map(img -> {
-                                      ProductImageDTO dto = new ProductImageDTO();
-                                      dto.setId(img.getId());
-                                      dto.setContent(Base64.getEncoder().encodeToString(img.getImageData()));
-                                      return dto;
-                                  })
-                                  .collect(Collectors.toList())
+                                .map(ProductImage::getId)
+                                .collect(Collectors.toList())
                         : null,
                 product.getStock(),
                 product.getDiscountPercentage()
