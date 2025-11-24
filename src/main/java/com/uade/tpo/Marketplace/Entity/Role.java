@@ -3,6 +3,8 @@ package com.uade.tpo.Marketplace.Entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -19,5 +21,6 @@ public class Role {
 
     @ManyToMany(mappedBy = "roles")
     @JsonBackReference
+    @ToString.Exclude
     private List<User> users;
 }

@@ -1,10 +1,9 @@
 package com.uade.tpo.Marketplace.Service.Impl;
 
-
-
 import com.uade.tpo.Marketplace.DTOs.ProductCreateDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductDetailDTO;
 import com.uade.tpo.Marketplace.DTOs.ProductListDTO;
+import com.uade.tpo.Marketplace.DTOs.ProductUpdateDTO; // Make sure this import matches your structure
 import com.uade.tpo.Marketplace.DTOs.Mapper.ProductMapper;
 import com.uade.tpo.Marketplace.Entity.Category;
 import com.uade.tpo.Marketplace.Entity.Product;
@@ -25,13 +24,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
-    private  ProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -44,6 +44,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+     private User getCurrentSeller() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+        String email = null;
+
+        // 1. Extract the email based on what the Principal object actually is
+        if (principal instanceof UserDetails) {
+            // This works because your User entity implements UserDetails
+            email = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof String) {
+            email = (String) principal;
+        }
+
+        if (email == null) {
+            throw new RuntimeException("Authentication error: No email found in Security Context");
+        }
+
+        // 2. RELOAD the user from the database.
+        // This is crucial! It ensures we have a fresh 'Entity' attached to the current
+        // transaction, preventing LazyInitializationException when we access user.getRoles().
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+    }
 
     @Override
     public List<ProductListDTO> getAllProducts() {
@@ -79,11 +103,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailDTO createProduct(ProductCreateDTO dto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String currentUserEmail = userDetails.getUsername();
-        User seller = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        // Use the helper method instead of casting manually
+        User seller = getCurrentSeller();
 
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -96,7 +117,7 @@ public class ProductServiceImpl implements ProductService {
         product.setDiscountPercentage(dto.getDiscountPercentage());
         product.setCategory(category);
         product.setSeller(seller);
-        product.setImages(new java.util.ArrayList<>());
+        product.setImages(new ArrayList<>());
 
         if (dto.getImages() != null) {
             for (MultipartFile file : dto.getImages()) {
@@ -128,11 +149,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListDTO> getProductsBySeller() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String currentUserEmail = userDetails.getUsername();
-        User seller = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        // Use the helper method
+        User seller = getCurrentSeller();
 
         return productRepository.findBySellerIdAndDeletedFalse(seller.getId())
                 .stream()
@@ -142,11 +160,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductListDTO> searchProductsByNameAndSeller(String name) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String currentUserEmail = userDetails.getUsername();
-        User seller = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        // Use the helper method
+        User seller = getCurrentSeller();
 
         return productRepository.findByNameContainingIgnoreCaseAndSellerAndDeletedFalse(name, seller)
                 .stream()
@@ -155,12 +170,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDetailDTO updateProduct(Long id, com.uade.tpo.Marketplace.DTOs.ProductUpdateDTO productUpdateDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String currentUserEmail = userDetails.getUsername();
-        User seller = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+    public ProductDetailDTO updateProduct(Long id, ProductUpdateDTO productUpdateDTO) {
+        // Use the helper method
+        User seller = getCurrentSeller();
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -181,7 +193,10 @@ public class ProductServiceImpl implements ProductService {
 
         if (productUpdateDTO.getImagesToDelete() != null) {
             for (String imageId : productUpdateDTO.getImagesToDelete()) {
-                productImageRepository.deleteById(Long.parseLong(imageId));
+                // Ensure the ID is valid before parsing
+                if (imageId != null && !imageId.isEmpty()) {
+                   productImageRepository.deleteById(Long.parseLong(imageId));
+                }
             }
         }
 
@@ -204,11 +219,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String currentUserEmail = userDetails.getUsername();
-        User seller = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        // Use the helper method
+        User seller = getCurrentSeller();
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
