@@ -50,9 +50,7 @@ public class ProductServiceImpl implements ProductService {
         Object principal = authentication.getPrincipal();
         String email = null;
 
-        // 1. Extract the email based on what the Principal object actually is
         if (principal instanceof UserDetails) {
-            // This works because your User entity implements UserDetails
             email = ((UserDetails) principal).getUsername();
         } else if (principal instanceof String) {
             email = (String) principal;
@@ -62,9 +60,6 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Authentication error: No email found in Security Context");
         }
 
-        // 2. RELOAD the user from the database.
-        // This is crucial! It ensures we have a fresh 'Entity' attached to the current
-        // transaction, preventing LazyInitializationException when we access user.getRoles().
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Seller not found"));
     }

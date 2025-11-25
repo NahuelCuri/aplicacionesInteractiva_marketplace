@@ -148,7 +148,6 @@ public class OrderServiceImpl implements OrderService {
             cart.getItems().add(newItem);
         }
 
-        // Recalculate total price
         double totalPrice = cart.getItems().stream()
                 .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
                 .sum();
@@ -193,7 +192,6 @@ public class OrderServiceImpl implements OrderService {
 
         cart.getItems().remove(itemToRemove);
 
-        // Recalculate total price
         double totalPrice = cart.getItems().stream()
                 .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
                 .sum();

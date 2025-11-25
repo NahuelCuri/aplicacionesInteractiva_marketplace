@@ -116,7 +116,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id " + id));
 
-        // Soft-delete the user's products
         List<com.uade.tpo.Marketplace.Entity.Product> products = user.getProducts();
         if (products != null && !products.isEmpty()) {
             for (com.uade.tpo.Marketplace.Entity.Product product : products) {
@@ -125,7 +124,6 @@ public class UserServiceImpl implements UserService {
             productRepository.saveAll(products);
         }
         
-        // Anonymize user data
         String anonymizedId = "deleted_user_" + user.getId();
         user.setEnabled(false);
         user.setUsername(anonymizedId);
